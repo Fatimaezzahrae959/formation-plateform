@@ -83,3 +83,14 @@ use App\Http\Controllers\SessionController;
 Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('sessions', SessionController::class);
 });
+
+use App\Http\Controllers\InscriptionController;
+
+Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
+    Route::resource('inscriptions', InscriptionController::class);
+});
+
+use App\Http\Controllers\UserController;
+Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
+    Route::resource('users', UserController::class);
+});

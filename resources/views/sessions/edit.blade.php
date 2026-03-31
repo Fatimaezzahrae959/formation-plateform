@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Ajouter Session')
+@section('title', 'Modifier Session')
 
 @section('content')
 
-    <h2 class="title">Ajouter Session</h2>
+    <h2 class="title">Modifier Session</h2>
 
     @if($errors->any())
         <div style="color:red;">
@@ -16,17 +16,18 @@
         </div>
     @endif
 
-    <form action="{{ route('sessions.store') }}" method="POST">
+    <form action="{{ route('sessions.update', $session->id) }}" method="POST">
         @csrf
+        @method('PUT')
 
         <div class="form-group">
             <label>Titre FR</label>
-            <input type="text" name="title_fr" value="{{ old('title_fr') }}" required>
+            <input type="text" name="title_fr" value="{{ old('title_fr', $session->title_fr) }}" required>
         </div>
 
         <div class="form-group">
             <label>Titre EN</label>
-            <input type="text" name="title_en" value="{{ old('title_en') }}" required>
+            <input type="text" name="title_en" value="{{ old('title_en', $session->title_en) }}" required>
         </div>
 
         <div class="form-group">
@@ -34,7 +35,7 @@
             <select name="formation_id" required>
                 <option value="">-- Choisir Formation --</option>
                 @foreach($formations as $formation)
-                    <option value="{{ $formation->id }}" {{ old('formation_id') == $formation->id ? 'selected' : '' }}>
+                    <option value="{{ $formation->id }}" {{ old('formation_id', $session->formation_id) == $formation->id ? 'selected' : '' }}>
                         {{ $formation->title_fr }}
                     </option>
                 @endforeach
@@ -46,7 +47,7 @@
             <select name="formateur_id" required>
                 <option value="">-- Choisir Formateur --</option>
                 @foreach($formateurs as $formateur)
-                    <option value="{{ $formateur->id }}" {{ old('formateur_id') == $formateur->id ? 'selected' : '' }}>
+                    <option value="{{ $formateur->id }}" {{ old('formateur_id', $session->formateur_id) == $formateur->id ? 'selected' : '' }}>
                         {{ $formateur->name }}
                     </option>
                 @endforeach
@@ -55,48 +56,50 @@
 
         <div class="form-group">
             <label>Date de début</label>
-            <input type="date" name="start_date" value="{{ old('start_date') }}" required>
+            <input type="date" name="start_date" value="{{ old('start_date', $session->start_date) }}" required>
         </div>
 
         <div class="form-group">
             <label>Date de fin</label>
-            <input type="date" name="end_date" value="{{ old('end_date') }}" required>
+            <input type="date" name="end_date" value="{{ old('end_date', $session->end_date) }}" required>
         </div>
 
         <div class="form-group">
             <label>Capacité</label>
-            <input type="number" name="capacity" value="{{ old('capacity', 1) }}" required>
+            <input type="number" name="capacity" value="{{ old('capacity', $session->capacity) }}" required>
         </div>
 
         <div class="form-group">
             <label>Mode</label>
             <select name="mode" required>
                 <option value="">-- Choisir Mode --</option>
-                <option value="présentiel" {{ old('mode') == 'présentiel' ? 'selected' : '' }}>Présentiel</option>
-                <option value="en ligne" {{ old('mode') == 'en ligne' ? 'selected' : '' }}>En ligne</option>
-                <option value="hybride" {{ old('mode') == 'hybride' ? 'selected' : '' }}>Hybride</option>
+                <option value="présentiel" {{ old('mode', $session->mode) == 'présentiel' ? 'selected' : '' }}>Présentiel
+                </option>
+                <option value="en ligne" {{ old('mode', $session->mode) == 'en ligne' ? 'selected' : '' }}>En ligne</option>
+                <option value="hybride" {{ old('mode', $session->mode) == 'hybride' ? 'selected' : '' }}>Hybride</option>
             </select>
         </div>
 
         <div class="form-group">
             <label>Ville</label>
-            <input type="text" name="city" value="{{ old('city') }}">
+            <input type="text" name="city" value="{{ old('city', $session->city) }}">
         </div>
 
         <div class="form-group">
             <label>Lien de réunion (si en ligne)</label>
-            <input type="url" name="meeting_link" value="{{ old('meeting_link') }}">
+            <input type="url" name="meeting_link" value="{{ old('meeting_link', $session->meeting_link) }}">
         </div>
 
         <div class="form-group">
             <label>Status</label>
             <select name="status" required>
-                <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Active</option>
-                <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                <option value="active" {{ old('status', $session->status) == 'active' ? 'selected' : '' }}>Active</option>
+                <option value="inactive" {{ old('status', $session->status) == 'inactive' ? 'selected' : '' }}>Inactive
+                </option>
             </select>
         </div>
 
-        <button type="submit" class="submit"><i class="fas fa-plus"></i> Ajouter</button>
+        <button type="submit" class="submit"><i class="fas fa-edit"></i> Modifier</button>
     </form>
 
 @endsection
