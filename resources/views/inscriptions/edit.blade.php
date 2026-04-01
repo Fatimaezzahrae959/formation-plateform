@@ -47,12 +47,11 @@
         <div class="form-group">
             <label>Status</label>
             <select name="status" required>
-                <option value="pending" {{ old('status', $inscription->status) == 'pending' ? 'selected' : '' }}>En attente
-                </option>
-                <option value="confirmed" {{ old('status', $inscription->status) == 'confirmed' ? 'selected' : '' }}>Confirmé
-                </option>
-                <option value="cancelled" {{ old('status', $inscription->status) == 'cancelled' ? 'selected' : '' }}>Annulé
-                </option>
+                @foreach(\App\Enums\InscriptionStatus::cases() as $status)
+                    <option value="{{ $status->value }}" {{ old('status', $inscription->status->value) == $status->value ? 'selected' : '' }}>
+                        {{ $status->label() }}
+                    </option>
+                @endforeach
             </select>
         </div>
 

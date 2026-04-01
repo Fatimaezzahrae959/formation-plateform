@@ -4,28 +4,47 @@
 
 @section('content')
 
-    <h2>Connexion</h2>
+    <div class="auth-title">Connexion</div>
+    <div class="auth-subtitle">Bienvenue, connectez-vous à votre compte</div>
+
+    @if($errors->any())
+        <div class="alert-errors">
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
     <form method="POST" action="{{ route('login.store') }}">
         @csrf
 
-        <div class="input-group">
-            <i class="fas fa-envelope"></i>
-            <input type="email" name="email" placeholder="Email">
+        <div class="form-group">
+            <label>Email</label>
+            <div class="input-wrap">
+                <i class="fas fa-envelope"></i>
+                <input type="email" name="email" value="{{ old('email') }}" placeholder="you@example.com" required>
+            </div>
+            @error('email') <span class="error">{{ $message }}</span> @enderror
         </div>
 
-        <div class="input-group">
-            <i class="fas fa-lock"></i>
-            <input type="password" name="password" placeholder="Mot de passe">
+        <div class="form-group">
+            <label>Mot de passe</label>
+            <div class="input-wrap">
+                <i class="fas fa-lock"></i>
+                <input type="password" name="password" placeholder="••••••••" required>
+            </div>
+            @error('password') <span class="error">{{ $message }}</span> @enderror
         </div>
 
-        <button type="submit">Se connecter</button>
-
+        <button type="submit">
+            <i class="fas fa-sign-in-alt"></i> Se connecter
+        </button>
     </form>
 
-    <div class="link">
-        Pas encore de compte ?
-        <a href="{{ route('register.show') }}">S'inscrire</a>
-    </div>
+@endsection
 
+@section('auth-links')
+    Pas encore de compte ? <a href="{{ route('register.show') }}">S'inscrire</a>
 @endsection

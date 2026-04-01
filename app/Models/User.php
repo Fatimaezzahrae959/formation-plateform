@@ -49,7 +49,8 @@ class User extends Authenticatable
         'password',
         'role',
         'language',
-        'is_active'
+        'is_active',
+        'last_activity_at'
     ];
     /**
      * The attributes that should be hidden for serialization.
@@ -69,7 +70,10 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'last_activity_at' => 'datetime', // ← زيد هاد السطر
     ];
+
+
 
 
 }

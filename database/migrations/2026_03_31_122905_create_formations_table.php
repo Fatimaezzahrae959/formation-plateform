@@ -12,8 +12,8 @@ return new class extends Migration {
             $table->unsignedBigInteger('category_id')->nullable();
             $table->string('title_fr');
             $table->string('title_en');
-            $table->string('slug_fr');
-            $table->string('slug_en');
+            $table->string('slug_fr')->nullable();
+            $table->string('slug_en')->nullable();
             $table->text('short_desc_fr')->nullable();
             $table->text('short_desc_en')->nullable();
             $table->text('desc_fr')->nullable();

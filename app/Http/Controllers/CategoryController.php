@@ -4,61 +4,87 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
-use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
+    // 📌 LIST
     public function index()
     {
-        $categories = Category::all();
+        $categories = Category::latest()->get();
         return view('categories.index', compact('categories'));
     }
 
+    // 📌 CREATE
     public function create()
     {
         return view('categories.create');
     }
 
+    // 📌 STORE
     public function store(Request $request)
     {
         $request->validate([
-            'name_fr' => 'required',
-            'name_en' => 'required'
+            'name_fr' => 'required|string|max:255',
+            'name_en' => 'required|string|max:255',
         ]);
 
-        Category::create([
-            'name_fr' => $request->name_fr,
-            'name_en' => $request->name_en,
-            'slug_fr' => Str::slug($request->name_fr),
-            'slug_en' => Str::slug($request->name_en),
-        ]);
+        $nameFr = $request->input('name_fr');
+        $nameEn = $request->input('name_en');
 
-        return redirect()->route('categories.index')->with('success', 'Catégorie ajoutée');
+        $category = new Category();
+        $category->name_fr = $nameFr;
+        $category->name_en = $nameEn;
+
+        // توليد slug مباشرة هنا
+        $category->slug_fr = $this->generateSlug($nameFr, 'slug_fr');
+        $category->slug_en = $this->generateSlug($nameEn, 'slug_en');
+
+        $category->save();
+
+        return redirect()->route('categories.index')->with('success', 'Category créée avec succès!');
     }
 
-    public function edit($id)
+    protected function generateSlug(string $title, string $column): string
     {
-        $category = Category::findOrFail($id);
+        $slug = \Str::slug($title);
+        $original = $slug;
+        $count = 1;
+
+        while (Category::where($column, $slug)->exists()) {
+            $slug = $original . '-' . $count++;
+        }
+
+        return $slug;
+    }
+    // 📌 EDIT
+    public function edit(Category $category)
+    {
         return view('categories.edit', compact('category'));
     }
 
-    public function update(Request $request, $id)
+    // 📌 UPDATE
+    public function update(Request $request, Category $category)
     {
-        $category = Category::findOrFail($id);
+        $request->validate([
+            'name_fr' => 'required|string|max:255',
+            'name_en' => 'required|string|max:255',
+        ]);
 
         $category->update([
             'name_fr' => $request->name_fr,
             'name_en' => $request->name_en,
-            'slug_fr' => Str::slug($request->name_fr),
-            'slug_en' => Str::slug($request->name_en),
         ]);
 
-        return redirect()->route('categories.index')->with('success', 'Catégorie modifiée');
+        return redirect()->route('categories.index')
+            ->with('success', 'Catégorie modifiée avec succès !');
     }
 
-    public function destroy($id)
+    // 📌 DELETE
+    public function destroy(Category $category)
     {
-        Category::findOrFail($id)->delete();
-        return redirect()->route('categories.index')->with('success', 'Supprimée');
+        $category->delete();
+
+        return redirect()->route('categories.index')
+            ->with('success', 'Catégorie supprimée avec succès !');
     }
 }

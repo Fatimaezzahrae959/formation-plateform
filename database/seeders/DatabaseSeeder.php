@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Formation;
 use App\Models\Session;
 use App\Models\Inscription;
+use App\Models\Blog;
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -32,5 +33,8 @@ class DatabaseSeeder extends Seeder
 
         // 5. Inscriptions
         Inscription::factory(20)->create();
+
+        // 6. Blogs
+        Blog::factory(10)->create();
     }
 }

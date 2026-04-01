@@ -94,10 +94,12 @@
 
         <div class="form-group">
             <label>Status</label>
-            <select name="status">
-                <option value="brouillon" {{ old('status') == 'brouillon' ? 'selected' : '' }}>Brouillon</option>
-                <option value="publie" {{ old('status') == 'publie' ? 'selected' : '' }}>Publié</option>
-                <option value="archive" {{ old('status') == 'archive' ? 'selected' : '' }}>Archivé</option>
+            <select name="status" required>
+                @foreach(\App\Enums\FormationStatus::cases() as $status)
+                    <option value="{{ $status->value }}" {{ old('status', 'brouillon') == $status->value ? 'selected' : '' }}>
+                        {{ $status->label() }}
+                    </option>
+                @endforeach
             </select>
             @error('status') <span class="error">{{ $message }}</span> @enderror
         </div>

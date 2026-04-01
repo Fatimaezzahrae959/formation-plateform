@@ -4,33 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use App\Traits\HasSlug;
 use App\Traits\HasSEO;
-use App\Enums\FormationStatus;
 
 
-class Formation extends Model
+class Blog extends Model
 {
     use HasFactory, HasSlug, HasSEO;
 
     protected $fillable = [
         'category_id',
+        'user_id',
         'title_fr',
         'title_en',
         'slug_fr',
         'slug_en',
-        'short_desc_fr',
-        'short_desc_en',
-        'desc_fr',
-        'desc_en',
-        'full_desc_fr',
-        'full_desc_en',
+        'content_fr',
+        'content_en',
         'image',
-        'price',
-        'duration',
-        'level',
         'status',
-        'publication_date',
         'published_at',
         'seo_title_fr',
         'seo_title_en',
@@ -40,11 +33,11 @@ class Formation extends Model
 
     public function category()
     {
-        return $this->belongsTo(\App\Models\Category::class);
+        return $this->belongsTo(Category::class);
     }
 
-
-    protected $casts = [
-        'status' => FormationStatus::class,
-    ];
+    public function auteur()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

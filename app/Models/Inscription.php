@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Enums\InscriptionStatus;
 
 class Inscription extends Model
 {
@@ -28,4 +29,8 @@ class Inscription extends Model
     {
         return $this->belongsTo(Session::class);
     }
+
+    protected $casts = [
+        'status' => InscriptionStatus::class,
+    ];
 }

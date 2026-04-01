@@ -6,6 +6,8 @@ use App\Models\Formation;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Enums\FormationStatus;
+use Illuminate\Validation\Rules\Enum;
 
 class FormationController extends Controller
 {
@@ -13,6 +15,16 @@ class FormationController extends Controller
     {
         $formations = Formation::with('category')->latest()->paginate(10);
         return view('formations.index', compact('formations'));
+    }
+
+    public function show($slug)
+    {
+        $formation = Formation::where('slug_fr', $slug)
+            ->orWhere('slug_en', $slug)
+            ->with('category')
+            ->firstOrFail();
+
+        return view('formations.show', compact('formation'));
     }
 
     public function create()
@@ -35,7 +47,7 @@ class FormationController extends Controller
             'price' => 'nullable|numeric',
             'duration' => 'nullable|string|max:50',
             'level' => 'nullable|string|max:50',
-            'status' => 'nullable|in:brouillon,publie,archive',
+            'status' => ['required', new Enum(FormationStatus::class)],
         ]);
 
         $imagePath = null;
@@ -57,7 +69,7 @@ class FormationController extends Controller
             'price' => $request->price ?? 0,
             'duration' => $request->duration,
             'level' => $request->level,
-            'status' => $request->status ?? 'brouillon',
+            'status' => $request->status ?? FormationStatus::Brouillon->value,
         ]);
 
         return redirect()->route('formations.index')->with('success', 'Formation ajoutée avec succès !');
@@ -83,7 +95,7 @@ class FormationController extends Controller
             'price' => 'nullable|numeric',
             'duration' => 'nullable|string|max:50',
             'level' => 'nullable|string|max:50',
-            'status' => 'nullable|in:brouillon,publie,archive',
+            'status' => ['required', new Enum(FormationStatus::class)],
         ]);
 
         $data = $request->except('image');
@@ -91,7 +103,6 @@ class FormationController extends Controller
         $data['slug_en'] = Str::slug($request->title_en);
 
         if ($request->hasFile('image')) {
-            // Supprimer l'ancienne image
             if ($formation->image) {
                 \Storage::disk('public')->delete($formation->image);
             }

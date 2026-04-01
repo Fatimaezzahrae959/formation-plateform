@@ -93,12 +93,13 @@
         <div class="form-group">
             <label>Status</label>
             <select name="status" required>
-                <option value="active" {{ old('status', $session->status) == 'active' ? 'selected' : '' }}>Active</option>
-                <option value="inactive" {{ old('status', $session->status) == 'inactive' ? 'selected' : '' }}>Inactive
-                </option>
+                @foreach(\App\Enums\SessionStatus::cases() as $status)
+                    <option value="{{ $status->value }}" {{ old('status', $session->status->value) == $status->value ? 'selected' : '' }}>
+                        {{ $status->label() }}
+                    </option>
+                @endforeach
             </select>
         </div>
-
         <button type="submit" class="submit"><i class="fas fa-edit"></i> Modifier</button>
     </form>
 

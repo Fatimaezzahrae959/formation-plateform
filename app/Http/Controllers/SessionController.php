@@ -6,12 +6,14 @@ use Illuminate\Http\Request;
 use App\Models\Session;
 use App\Models\Formation;
 use App\Models\User;
+use App\Enums\SessionStatus;
+use Illuminate\Validation\Rules\Enum;
 
 class SessionController extends Controller
 {
     public function index()
     {
-        $sessions = \App\Models\Session::with('formation', 'formateur')->latest()->paginate(10);
+        $sessions = Session::with('formation', 'formateur')->latest()->paginate(10);
         return view('sessions.index', compact('sessions'));
     }
 
@@ -35,7 +37,7 @@ class SessionController extends Controller
             'mode' => 'required|in:présentiel,en ligne,hybride',
             'city' => 'nullable|string|max:255',
             'meeting_link' => 'nullable|url',
-            'status' => 'required|in:active,inactive',
+            'status' => ['required', new Enum(SessionStatus::class)],
         ]);
 
         Session::create([
@@ -54,6 +56,7 @@ class SessionController extends Controller
 
         return redirect()->route('sessions.index')->with('success', 'Session ajoutée avec succès !');
     }
+
     public function edit(Session $session)
     {
         $formations = Formation::all();
@@ -64,20 +67,32 @@ class SessionController extends Controller
     public function update(Request $request, Session $session)
     {
         $request->validate([
-            'formation_id' => 'required|exists:formations,id',
-            'formateur_id' => 'required|exists:users,id',
             'title_fr' => 'required|string|max:255',
             'title_en' => 'required|string|max:255',
+            'formation_id' => 'required|exists:formations,id',
+            'formateur_id' => 'required|exists:users,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'capacity' => 'required|integer|min:1',
             'mode' => 'required|in:présentiel,en ligne,hybride',
             'city' => 'nullable|string|max:255',
             'meeting_link' => 'nullable|url',
-            'status' => 'required|in:active,inactive',
+            'status' => ['required', new Enum(SessionStatus::class)],
         ]);
 
-        $session->update($request->all());
+        $session->update([
+            'title_fr' => $request->title_fr,
+            'title_en' => $request->title_en,
+            'formation_id' => $request->formation_id,
+            'formateur_id' => $request->formateur_id,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'capacity' => $request->capacity,
+            'mode' => $request->mode,
+            'city' => $request->city,
+            'meeting_link' => $request->meeting_link,
+            'status' => $request->status,
+        ]);
 
         return redirect()->route('sessions.index')->with('success', 'Session modifiée avec succès !');
     }

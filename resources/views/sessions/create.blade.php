@@ -91,8 +91,11 @@
         <div class="form-group">
             <label>Status</label>
             <select name="status" required>
-                <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Active</option>
-                <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                @foreach(\App\Enums\SessionStatus::cases() as $status)
+                    <option value="{{ $status->value }}" {{ old('status', 'active') == $status->value ? 'selected' : '' }}>
+                        {{ $status->label() }}
+                    </option>
+                @endforeach
             </select>
         </div>
 

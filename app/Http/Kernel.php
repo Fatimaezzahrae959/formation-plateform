@@ -36,6 +36,9 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\SetLocale::class,
+            \App\Http\Middleware\CheckUserActive::class,
+            \App\Http\Middleware\LastActivity::class,
         ],
 
         'api' => [
@@ -65,5 +68,9 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
+        'setlocale' => \App\Http\Middleware\SetLocale::class,
+        'check.active' => \App\Http\Middleware\CheckUserActive::class,
+        'last.activity' => \App\Http\Middleware\LastActivity::class,
+
     ];
 }

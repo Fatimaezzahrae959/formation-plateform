@@ -16,7 +16,7 @@
         </div>
     @endif
 
-    <form action="{{ route('formations.update', $formation->id) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('formations.update', $formation->id ) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -101,13 +101,18 @@
 
         <div class="form-group">
             <label>Status</label>
-            <select name="status">
-                <option value="brouillon" {{ old('status', $formation->status) == 'brouillon' ? 'selected' : '' }}>Brouillon</option>
-                <option value="publie" {{ old('status', $formation->status) == 'publie' ? 'selected' : '' }}>Publié</option>
-                <option value="archive" {{ old('status', $formation->status) == 'archive' ? 'selected' : '' }}>Archivé</option>
+            <select name="status" required>
+                @foreach(\App\Enums\FormationStatus::cases() as $status)
+                    <option value="{{ $status->value }}" {{ old('status', $formation->status) == $status->value ? 'selected' : '' }}>
+                        {{ $status->label() }}
+                    </option>
+                @endforeach
             </select>
             @error('status') <span class="error">{{ $message }}</span> @enderror
         </div>
+        
+
+
 
         <button type="submit" class="submit"><i class="fas fa-edit"></i> Modifier</button>
     </form>

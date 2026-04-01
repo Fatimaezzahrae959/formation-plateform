@@ -46,9 +46,11 @@
         <div class="form-group">
             <label>Status</label>
             <select name="status" required>
-                <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>En attente</option>
-                <option value="confirmed" {{ old('status') == 'confirmed' ? 'selected' : '' }}>Confirmé</option>
-                <option value="cancelled" {{ old('status') == 'cancelled' ? 'selected' : '' }}>Annulé</option>
+                @foreach(\App\Enums\InscriptionStatus::cases() as $status)
+                    <option value="{{ $status->value }}" {{ old('status', 'pending') == $status->value ? 'selected' : '' }}>
+                        {{ $status->label() }}
+                    </option>
+                @endforeach
             </select>
         </div>
 

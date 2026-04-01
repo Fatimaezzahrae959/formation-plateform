@@ -7,10 +7,14 @@
     <h2 class="title">Liste des Inscriptions</h2>
 
     @if(session('success'))
-        <p class="success">{{ session('success') }}</p>
+        <div class="flash success">
+            <i class="fas fa-check-circle"></i> {{ session('success') }}
+        </div>
     @endif
 
-    <a href="{{ route('inscriptions.create') }}" class="btn-add"><i class="fas fa-plus"></i> Ajouter Inscription</a>
+    <a href="{{ route('inscriptions.create') }}" class="btn-add">
+        <i class="fas fa-plus"></i> Ajouter Inscription
+    </a>
 
     <table>
         <thead>
@@ -33,7 +37,11 @@
                     <td>{{ $inscription->reference }}</td>
                     <td>{{ $inscription->user?->name ?? '-' }}</td>
                     <td>{{ $inscription->session?->title_fr ?? '-' }}</td>
-                    <td>{{ $inscription->status }}</td>
+                    <td>
+                        <span class="badge badge-{{ $inscription->status->color() }}">
+                            {{ $inscription->status->label() }}
+                        </span>
+                    </td>
                     <td>{{ $inscription->note ?? '-' }}</td>
                     <td>{{ $inscription->confirmed_at ?? '-' }}</td>
                     <td>{{ $inscription->cancelled_at ?? '-' }}</td>

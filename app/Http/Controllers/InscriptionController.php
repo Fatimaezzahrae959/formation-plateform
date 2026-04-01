@@ -28,7 +28,12 @@ class InscriptionController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'session_id' => 'required|exists:sessions,id',
+
+            // اختاري واحد فقط 👇
             'status' => 'required|in:pending,confirmed,cancelled',
+            // أو إذا بغيت Enum:
+            // 'status' => ['required', new Enum(InscriptionStatus::class)],
+
             'note' => 'nullable|string',
         ]);
 
@@ -57,7 +62,11 @@ class InscriptionController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'session_id' => 'required|exists:sessions,id',
+
+            // نفس الملاحظة هنا
             'status' => 'required|in:pending,confirmed,cancelled',
+            // أو Enum
+
             'note' => 'nullable|string',
         ]);
 

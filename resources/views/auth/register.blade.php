@@ -4,58 +4,89 @@
 
 @section('content')
 
-    <h2>Créer un compte</h2>
+    <div class="auth-title">Créer un compte</div>
+    <div class="auth-subtitle">Rejoignez FormationPro dès maintenant</div>
+
+    @if($errors->any())
+        <div class="alert-errors">
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
     <form method="POST" action="{{ route('register.store') }}">
         @csrf
 
-        <div class="input-group">
-            <i class="fas fa-user"></i>
-            <input type="text" name="name" placeholder="Nom complet">
-        </div>
-        @error('name') <div class="error">{{ $message }}</div> @enderror
-
-        <div class="input-group">
-            <i class="fas fa-envelope"></i>
-            <input type="email" name="email" placeholder="Email">
+        <div class="form-group">
+            <label>Nom complet</label>
+            <div class="input-wrap">
+                <i class="fas fa-user"></i>
+                <input type="text" name="name" value="{{ old('name') }}" placeholder="Votre nom" required>
+            </div>
+            @error('name') <span class="error">{{ $message }}</span> @enderror
         </div>
 
-        <div class="input-group">
-            <i class="fas fa-phone"></i>
-            <input type="text" name="phone" placeholder="Téléphone">
+        <div class="form-group">
+            <label>Email</label>
+            <div class="input-wrap">
+                <i class="fas fa-envelope"></i>
+                <input type="email" name="email" value="{{ old('email') }}" placeholder="you@example.com" required>
+            </div>
+            @error('email') <span class="error">{{ $message }}</span> @enderror
         </div>
 
-        <div class="input-group">
-            <i class="fas fa-user-tag"></i> <!-- icon pour role -->
-            <select name="role" id="role"
-                class="w-full px-10 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
-                <option value="admin">Admin</option>
-                <option value="formateur">Formateur</option>
-                <option value="participant" selected>Participant</option>
-            </select>
-        </div>
-        @error('role') <div class="error">{{ $message }}</div> @enderror
-
-
-
-
-        <div class="input-group">
-            <i class="fas fa-lock"></i>
-            <input type="password" name="password" placeholder="Mot de passe">
+        <div class="form-group">
+            <label>Téléphone</label>
+            <div class="input-wrap">
+                <i class="fas fa-phone"></i>
+                <input type="text" name="phone" value="{{ old('phone') }}" placeholder="+212 6xx xxx xxx">
+            </div>
+            @error('phone') <span class="error">{{ $message }}</span> @enderror
         </div>
 
-        <div class="input-group">
-            <i class="fas fa-lock"></i>
-            <input type="password" name="password_confirmation" placeholder="Confirmer">
+        <div class="form-group">
+            <label>Rôle</label>
+            <div class="input-wrap">
+                <i class="fas fa-user-tag"></i>
+                <input type="text" style="padding-left: 38px;" name="role" value="participant" hidden>
+                <select name="role"
+                    style="padding-left: 38px; width:100%; padding:11px 13px 11px 38px; background:var(--surface); border:1px solid var(--border); border-radius:9px; color:var(--text); font-size:14px; font-family:'Inter',sans-serif; outline:none;">
+                    <option value="formateur" {{ old('role') == 'formateur' ? 'selected' : '' }}>Formateur</option>
+                    <option value="participant" {{ old('role', 'participant') == 'participant' ? 'selected' : '' }}>
+                        Participant</option>
+                    <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                </select>
+            </div>
+            @error('role') <span class="error">{{ $message }}</span> @enderror
         </div>
 
-        <button type="submit">S'inscrire</button>
+        <div class="form-group">
+            <label>Mot de passe</label>
+            <div class="input-wrap">
+                <i class="fas fa-lock"></i>
+                <input type="password" name="password" placeholder="••••••••" required>
+            </div>
+            @error('password') <span class="error">{{ $message }}</span> @enderror
+        </div>
 
+        <div class="form-group">
+            <label>Confirmer mot de passe</label>
+            <div class="input-wrap">
+                <i class="fas fa-lock"></i>
+                <input type="password" name="password_confirmation" placeholder="••••••••" required>
+            </div>
+        </div>
+
+        <button type="submit">
+            <i class="fas fa-user-plus"></i> S'inscrire
+        </button>
     </form>
 
-    <div class="link">
-        Déjà un compte ?
-        <a href="{{ route('login') }}">Se connecter</a>
-    </div>
+@endsection
 
+@section('auth-links')
+    Déjà un compte ? <a href="{{ route('login') }}">Se connecter</a>
 @endsection
