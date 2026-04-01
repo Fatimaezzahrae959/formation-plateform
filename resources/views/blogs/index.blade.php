@@ -12,7 +12,10 @@
 
     <a href="{{ route('blogs.create') }}" class="btn-add"><i class="fas fa-plus"></i> Ajouter Article</a>
 
-    <table>
+    <input type="text" class="live-search" data-table="blogs" placeholder="Rechercher un article..."
+        style="margin:10px 0;padding:5px;width:300px;">
+
+    <table id="blogs-table">
         <thead>
             <tr>
                 <th>ID</th>
@@ -42,18 +45,16 @@
                     <td>{{ $blog->title_en }}</td>
                     <td>{{ $blog->category?->name_fr ?? '-' }}</td>
                     <td>{{ $blog->auteur?->name ?? '-' }}</td>
-                    <td>{{ $blog->status }}</td>
+                    <td>
+                        <button class="status-toggle" data-id="{{ $blog->id }}" data-table="blogs">
+                            {{ ucfirst($blog->status) }}
+                        </button>
+                    </td>
                     <td>{{ $blog->published_at ?? '-' }}</td>
                     <td class="actions">
-                        <a href="{{ route('blogs.edit', $blog->id) }}" class="btn edit">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <form action="{{ route('blogs.destroy', $blog->id) }}" method="POST" style="display:inline-block;"
-                            onsubmit="return confirm('Supprimer cet article ?');">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn delete"><i class="fas fa-trash"></i></button>
-                        </form>
+                        <a href="{{ route('blogs.edit', $blog->id) }}" class="btn edit"><i class="fas fa-edit"></i></a>
+                        <button class="btn delete" data-id="{{ $blog->id }}" data-table="blogs"><i
+                                class="fas fa-trash"></i></button>
                     </td>
                 </tr>
             @endforeach

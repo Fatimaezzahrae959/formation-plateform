@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title') — Admin</title>
     <meta name="description" content="{{ isset($model) ? $model->getMetaDesc() : '' }}">
@@ -634,7 +635,110 @@
             document.getElementById('flash-msg-err')?.remove();
         }, 4000);
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // =============================
+            // 1️⃣ DELETE via AJAX
+            // =============================
+            document.querySelectorAll('.btn.delete').forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const id = this.dataset.id;
+                    const table = this.dataset.table;
+
+                    if (confirm('Supprimer cet élément ?')) {
+                        fetch(`/ajax/${table}/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
+                            }
+                        })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    this.closest('tr').remove();
+                                    alert('Supprimé avec succès!');
+                                } else {
+                                    alert('Erreur lors de la suppression');
+                                }
+                            });
+                    }
+                });
+            });
+
+            // =============================
+            // 2️⃣ Toggle Status AJAX
+            // =============================
+            document.querySelectorAll('.status-toggle').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const id = this.dataset.id;
+                    const table = this.dataset.table;
+
+                    fetch(`/ajax/${table}/${id}/toggle-status`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        }
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                this.innerText = data.new_status_label;
+                                alert('Status mis à jour !');
+                            } else {
+                                alert('Erreur lors du changement de status');
+                            }
+                        });
+                });
+            });
+
+            // =============================
+            // 3️⃣ Live Search
+            // =============================
+            document.querySelectorAll('.live-search').forEach(input => {
+                input.addEventListener('keyup', function () {
+                    const table = this.dataset.table;
+                    const query = this.value;
+
+                    fetch(`/ajax/${table}/search?q=${query}`, {
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        }
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            const tbody = document.querySelector(`#${table}-table tbody`);
+                            tbody.innerHTML = '';
+                            data.forEach(item => {
+                                tbody.innerHTML += `
+                        <tr>
+                            <td>${item.id}</td>
+                            <td>${item.reference}</td>
+                            <td>${item.user_name}</td>
+                            <td>${item.session_title}</td>
+                            <td>${item.status_label}</td>
+                            <td>${item.note ?? '-'}</td>
+                            <td>${item.confirmed_at ?? '-'}</td>
+                            <td>${item.cancelled_at ?? '-'}</td>
+                            <td class="actions">
+                                <a href="/${table}/${item.id}/edit" class="btn edit">Edit</a>
+                                <button class="btn delete" data-id="${item.id}" data-table="${table}">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                            });
+                        });
+                });
+            });
+
+        });
+    </script>
 
 </body>
+
 
 </html>

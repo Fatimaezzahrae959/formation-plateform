@@ -49,12 +49,9 @@
                         <a href="{{ route('inscriptions.edit', $inscription->id) }}" class="btn edit">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <form action="{{ route('inscriptions.destroy', $inscription->id) }}" method="POST"
-                            style="display:inline-block;" onsubmit="return confirm('Supprimer cette inscription ?');">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn delete"><i class="fas fa-trash"></i></button>
-                        </form>
+                        <button class="btn delete" data-id="{{ $inscription->id }}">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 </tr>
             @endforeach

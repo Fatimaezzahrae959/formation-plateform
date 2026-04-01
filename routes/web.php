@@ -52,3 +52,20 @@ Route::get('/lang/{locale}', function ($locale) {
     }
     return back();
 })->name('lang.switch');
+
+
+// ─── AJAX Routes ─────────────────────────────────────
+use App\Http\Controllers\AjaxController;
+
+Route::prefix('ajax')->group(function () {
+
+    // DELETE
+    Route::delete('{table}/{id}', [AjaxController::class, 'delete'])->name('ajax.delete');
+
+    // Toggle status (ex: active/inactive)
+    Route::post('{table}/{id}/toggle-status', [AjaxController::class, 'toggleStatus'])->name('ajax.toggleStatus');
+
+    // Live search
+    Route::get('{table}/search', [AjaxController::class, 'search'])->name('ajax.search');
+
+});
