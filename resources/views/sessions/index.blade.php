@@ -7,12 +7,19 @@
     <h2 class="title">Liste des Sessions</h2>
 
     @if(session('success'))
-        <p class="success">{{ session('success') }}</p>
+        <div class="flash success">
+            <i class="fas fa-check-circle"></i> {{ session('success') }}
+        </div>
     @endif
 
-    <a href="{{ route('sessions.create') }}" class="btn-add"><i class="fas fa-plus"></i> Ajouter Session</a>
+    <a href="{{ route('sessions.create') }}" class="btn-add">
+        <i class="fas fa-plus"></i> Ajouter Session
+    </a>
 
-    <table>
+    <input type="text" class="live-search" data-table="sessions" placeholder="🔍 Rechercher session..." style="margin:12px 0 16px; padding:9px 14px; width:300px; border-radius:8px;
+                              border:1px solid var(--border); background:var(--bg);
+                              color:var(--text); font-size:14px; outline:none; display:block;">
+    <table id="sessions-table">
         <thead>
             <tr>
                 <th>ID</th>
@@ -31,8 +38,8 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($sessions as $session)
-                <tr>
+            @forelse($sessions as $session)
+                <tr id="row-{{ $session->id }}">
                     <td>{{ $session->id }}</td>
                     <td>{{ $session->title_fr }}</td>
                     <td>{{ $session->title_en }}</td>
@@ -45,24 +52,39 @@
                     <td>{{ $session->city ?? '-' }}</td>
                     <td>
                         @if($session->meeting_link)
-                            <a href="{{ $session->meeting_link }}" target="_blank">Lien</a>
+                            <a href="{{ $session->meeting_link }}" target="_blank" style="color:var(--accent);">Lien</a>
                         @else
-                            -
+                            <span style="color:var(--muted);">-</span>
                         @endif
                     </td>
-                    <td>{{ $session->status }}</td>
+                    <td>
+                        <button class="status-toggle badge badge-{{ $session->status->color() }}" data-id="{{ $session->id }}"
+                            data-table="sessions" style="cursor:pointer; border:none;">
+                            {{ $session->status->label() }}
+                        </button>
+                    </td>
                     <td class="actions">
-                        <a href="{{ route('sessions.edit', $session->id) }}" class="btn edit"><i class="fas fa-edit"></i></a>
-                        <form action="{{ route('sessions.destroy', $session->id) }}" method="POST" style="display:inline-block;"
-                            onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette session ?');">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn delete"><i class="fas fa-trash"></i></button>
-                        </form>
+                        <a href="{{ route('sessions.edit', $session->id) }}" class="btn edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <button class="btn delete" data-id="{{ $session->id }}" data-table="sessions">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 </tr>
-            @endforeach
+            @empty
+                <tr id="empty-row">
+                    <td colspan="13" style="text-align:center; padding:30px; color:var(--muted);">
+                        Aucune session trouvée
+                    </td>
+                </tr>
+            @endforelse
         </tbody>
     </table>
+    </div>
+
+    <div style="margin-top:15px;">
+        {{ $sessions->links() }}
+    </div>
 
 @endsection

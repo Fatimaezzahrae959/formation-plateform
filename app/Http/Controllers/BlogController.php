@@ -38,6 +38,8 @@ class BlogController extends Controller
         $request->validate([
             'title_fr' => 'required|string|max:255',
             'title_en' => 'required|string|max:255',
+            ' slug_fr' => Str::slug($request->title_fr),
+            'slug_en' => Str::slug($request->title_en),
             'category_id' => 'nullable|exists:categories,id',
             'user_id' => 'nullable|exists:users,id',
             'content_fr' => 'nullable|string',
@@ -87,6 +89,8 @@ class BlogController extends Controller
         $request->validate([
             'title_fr' => 'required|string|max:255',
             'title_en' => 'required|string|max:255',
+            ' slug_fr' => Str::slug($request->title_fr),
+            'slug_en' => Str::slug($request->title_en),
             'category_id' => 'nullable|exists:categories,id',
             'user_id' => 'nullable|exists:users,id',
             'content_fr' => 'nullable|string',

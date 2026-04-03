@@ -17,7 +17,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('login.store') }}">
+    <form method="POST" action="{{ route('login') }}">
         @csrf
 
         <div class="form-group">
@@ -36,15 +36,20 @@
                 <input type="password" name="password" placeholder="••••••••" required>
             </div>
             @error('password') <span class="error">{{ $message }}</span> @enderror
+
         </div>
 
         <button type="submit">
             <i class="fas fa-sign-in-alt"></i> Se connecter
         </button>
+        <a href="{{ route('password.request') }}" style="font-size: 12px; color: #6b6b6b  ;">
+            Mot de passe oublié ?
+        </a>
     </form>
 
 @endsection
 
 @section('auth-links')
     Pas encore de compte ? <a href="{{ route('register.show') }}">S'inscrire</a>
+
 @endsection

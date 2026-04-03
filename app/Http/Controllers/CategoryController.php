@@ -10,7 +10,7 @@ class CategoryController extends Controller
     // 📌 LIST
     public function index()
     {
-        $categories = Category::latest()->get();
+        $categories = Category::paginate(25);
         return view('categories.index', compact('categories'));
     }
 

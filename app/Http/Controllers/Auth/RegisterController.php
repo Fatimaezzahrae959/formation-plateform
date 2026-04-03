@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\WelcomeMail;
+use Illuminate\Auth\Events\Registered;
 
 class RegisterController extends Controller
 {
@@ -30,6 +33,11 @@ class RegisterController extends Controller
             'password' => Hash::make($request->password),
             'role' => $request->role,
         ]);
+        event(new Registered($user));
+
+
+        // ── Envoi email de bienvenue ──
+        // Mail::to($user->email)->send(new WelcomeMail($user));
 
         auth()->login($user);
 

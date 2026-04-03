@@ -7,11 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use App\Traits\HasSlug;
 use App\Traits\HasSEO;
+use App\Enums\BlogStatus;
 
 
 class Blog extends Model
 {
     use HasFactory, HasSlug, HasSEO;
+    protected $casts = [
+        'status' => BlogStatus::class,
+    ];
 
     protected $fillable = [
         'category_id',

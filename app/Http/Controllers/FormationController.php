@@ -19,12 +19,22 @@ class FormationController extends Controller
 
     public function show($slug)
     {
-        $formation = Formation::where('slug_fr', $slug)
+        $locale = get_active_locale();
+
+        // Chercher le slug dans la langue courante ou les deux
+        $formation = Formation::where("slug_{$locale}", $slug)
+            ->orWhere('slug_fr', $slug)
             ->orWhere('slug_en', $slug)
-            ->with('category')
+            ->with(['category', 'sessions.formateur'])  // Ajout de 'sessions.formateur'
             ->firstOrFail();
 
-        return view('formations.show', compact('formation'));
+        // Générer titre SEO avec helper
+        $seoTitle = generate_seo_title(
+            $formation->{"title_{$locale}"},
+            get_setting('site_name', 'Formation Platform')
+        );
+
+        return view('formations.show', compact('formation', 'seoTitle'));
     }
 
     public function create()
@@ -72,7 +82,8 @@ class FormationController extends Controller
             'status' => $request->status ?? FormationStatus::Brouillon->value,
         ]);
 
-        return redirect()->route('formations.index')->with('success', 'Formation ajoutée avec succès !');
+        return redirect()->route('formations.index')
+            ->with('success', 'Formation ajoutée avec succès !');
     }
 
     public function edit(Formation $formation)
@@ -111,7 +122,8 @@ class FormationController extends Controller
 
         $formation->update($data);
 
-        return redirect()->route('formations.index')->with('success', 'Formation mise à jour avec succès !');
+        return redirect()->route('formations.index')
+            ->with('success', 'Formation mise à jour avec succès !');
     }
 
     public function destroy(Formation $formation)
@@ -120,6 +132,13 @@ class FormationController extends Controller
             \Storage::disk('public')->delete($formation->image);
         }
         $formation->delete();
-        return redirect()->route('formations.index')->with('success', 'Formation supprimée !');
+
+        // Pour AJAX
+        if (request()->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->route('formations.index')
+            ->with('success', 'Formation supprimée !');
     }
 }

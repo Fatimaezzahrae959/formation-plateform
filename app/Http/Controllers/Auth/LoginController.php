@@ -13,6 +13,8 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
+
+
     public function login(Request $request)
     {
         // validation
@@ -31,11 +33,11 @@ class LoginController extends Controller
             $user = Auth::user();
 
             // redirection حسب role
-            if ($user->role == 'admin') {
+            if ($user->role === 'admin' || $user->role === 'super_admin') {
                 return redirect()->route('admin.dashboard');
-            } elseif ($user->role == 'formateur') {
+            } elseif ($user->role === 'formateur') {
                 return redirect()->route('formateur.dashboard');
-            } else {
+            } elseif ($user->role === 'participant') {
                 return redirect()->route('participant.dashboard');
             }
         }

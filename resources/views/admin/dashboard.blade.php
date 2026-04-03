@@ -1,158 +1,221 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
+@section('title', __('Dashboard'))
 
 @section('content')
 
-    <h2 class="title">Dashboard</h2>
+    <div class="dashboard-container">
+        <h2 class="title">{{ __('Dashboard') }}</h2>
 
-    {{-- STATS CARDS --}}
-    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:16px; margin-bottom:32px; ">
-        <div
-            style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; flex-direction:column; gap:8px;">
-            <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">Formations
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-book-open"></i></div>
+                <div class="stat-number">{{ $stats['formations'] }}</div>
+                <div class="stat-label">{{ __('Formations') }}</div>
+                <a href="{{ route('formations.index') }}" class="stat-link">{{ __('View all') }} →</a>
             </div>
-            <div style="font-size:32px; font-weight:700; color:var(--accent);">{{ $stats['formations'] }}</div>
-            <a href="{{ route('formations.index') }}" style="font-size:12px; color:var(--muted); text-decoration:none;">Voir
-                tout →</a>
+
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-tags"></i></div>
+                <div class="stat-number">{{ $stats['categories'] }}</div>
+                <div class="stat-label">{{ __('Categories') }}</div>
+                <a href="{{ route('categories.index') }}" class="stat-link">{{ __('View all') }} →</a>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+                <div class="stat-number">{{ $stats['sessions'] }}</div>
+                <div class="stat-label">{{ __('Sessions') }}</div>
+                <a href="{{ route('sessions.index') }}" class="stat-link">{{ __('View all') }} →</a>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+                <div class="stat-number">{{ $stats['inscriptions'] }}</div>
+                <div class="stat-label">{{ __('Registrations') }}</div>
+                <a href="{{ route('inscriptions.index') }}" class="stat-link">{{ __('View all') }} →</a>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-number">{{ $stats['users'] }}</div>
+                <div class="stat-label">{{ __('Users') }}</div>
+                <a href="{{ route('users.index') }}" class="stat-link">{{ __('View all') }} →</a>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-blog"></i></div>
+                <div class="stat-number">{{ $stats['blogs'] }}</div>
+                <div class="stat-label">{{ __('Blog') }}</div>
+                <a href="{{ route('blogs.index') }}" class="stat-link">{{ __('View all') }} →</a>
+            </div>
         </div>
 
-        <div
-            style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; flex-direction:column; gap:8px;">
-            <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">Catégories
+        <!-- Latest Formations -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3>{{ __('Latest Trainings') }}</h3>
+                <a href="{{ route('formations.index') }}" class="section-link">{{ __('View all') }} →</a>
             </div>
-            <div style="font-size:32px; font-weight:700; color:var(--accent2);">{{ $stats['categories'] }}</div>
-            <a href="{{ route('categories.index') }}" style="font-size:12px; color:var(--muted); text-decoration:none;">Voir
-                tout →</a>
+            <div class="table-wrap">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>{{ __('Title') }}</th>
+                            <th>{{ __('Category') }}</th>
+                            <th>{{ __('Status') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($latestFormations as $formation)
+                            <tr>
+                                <td>{{ $formation->title_fr }}</td>
+                                <td>{{ $formation->category?->name_fr ?? '-' }}</td>
+                                <td><span
+                                        class="badge badge-{{ $formation->status->color() }}">{{ $formation->status->label() }}</span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-
-        <div
-            style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; flex-direction:column; gap:8px;">
-            <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">Sessions
+        <!-- Latest Inscriptions -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3>{{ __('Latest Registrations') }}</h3>
+                <a href="{{ route('inscriptions.index') }}" class="section-link">{{ __('View all') }} →</a>
             </div>
-            <div style="font-size:32px; font-weight:700; color:var(--success);">{{ $stats['sessions'] }}</div>
-            <a href="{{ route('sessions.index') }}" style="font-size:12px; color:var(--muted); text-decoration:none;">Voir
-                tout →</a>
-        </div>
-
-
-        <div
-            style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; flex-direction:column; gap:8px;">
-            <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">Inscriptions
+            <div class="table-wrap">
+                <table class="dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>{{ __('Participant') }}</th>
+                            <th>{{ __('Session') }}</th>
+                            <th>{{ __('Status') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($latestInscriptions as $inscription)
+                            <tr>
+                                <td>{{ $inscription->user?->name ?? '-' }}</td>
+                                <td>{{ $inscription->session?->title_fr ?? '-' }}</td>
+                                <td><span
+                                        class="badge badge-{{ $inscription->status->color() }}">{{ $inscription->status->label() }}</span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-            <div style="font-size:32px; font-weight:700; color:var(--warning);">{{ $stats['inscriptions'] }}</div>
-            <a href="{{ route('inscriptions.index') }}"
-                style="font-size:12px; color:var(--muted); text-decoration:none;">Voir tout →</a>
         </div>
-
-        <div
-            style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; flex-direction:column; gap:8px;">
-            <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">Utilisateurs
-            </div>
-            <div style="font-size:32px; font-weight:700; color:var(--danger);">{{ $stats['users'] }}</div>
-            <a href="{{ route('users.index') }}" style="font-size:12px; color:var(--muted); text-decoration:none;">Voir
-                tout
-                →</a>
-        </div>
-
-        <div
-            style="background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; flex-direction:column; gap:8px;">
-            <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px;">Articles Blog
-            </div>
-            <div style="font-size:32px; font-weight:700; color:var(--accent);">{{ $stats['blogs'] }}</div>
-            <a href="{{ route('blogs.index') }}" style="font-size:12px; color:var(--muted); text-decoration:none;">Voir
-                tout
-                →</a>
-        </div>
-
     </div>
 
-    {{-- BOTTOM GRID --}}
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+    <style>
+        .dashboard-container {
+            padding: 0;
+        }
 
-        {{-- Dernières Formations --}}
-        <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-            <div
-                style="padding:16px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:600; font-size:14px;">Dernières Formations</span>
-                <a href="{{ route('formations.index') }}"
-                    style="font-size:12px; color:var(--accent); text-decoration:none;">Voir tout</a>
-            </div>
-            <table style="border-radius:0;">
-                <thead>
-                    <tr>
-                        <th>Titre</th>
-                        <th>Catégorie</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($latestFormations as $f)
-                        <tr>
-                            <td>{{ $f->title_fr }}</td>
-                            <td>{{ $f->category?->name_fr ?? '-' }}</td>
-                            <td>
-                                <span
-                                    style="
-                                                                                                                    padding:3px 10px;
-                                                                                                                    border-radius:20px;
-                                                                                                                    font-size:11px;
-                                                                                                                    font-weight:600;
-                                                                                                                    background:{{ $f->status == 'publie' ? 'rgba(0,229,160,0.1)' : ($f->status == 'archive' ? 'rgba(255,69,96,0.1)' : 'rgba(255,184,0,0.1)') }};
-                                                                                                                    color:{{ $f->status == 'publie' ? 'var(--success)' : ($f->status == 'archive' ? 'var(--danger)' : 'var(--warning)') }};
-                                                                                                                ">{{ $f->status }}</span>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
 
-        {{-- Dernières Inscriptions --}}
-        <div style="background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-            <div
-                style="padding:16px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:600; font-size:14px;">Dernières Inscriptions</span>
-                <a href="{{ route('inscriptions.index') }}"
-                    style="font-size:12px; color:var(--accent); text-decoration:none;">Voir tout</a>
-            </div>
-            <table style="border-radius:0;">
-                <thead>
-                    <tr>
-                        <th>Participant</th>
-                        <th>Session</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($latestInscriptions as $i)
-                        <tr>
-                            <td>{{ $i->user?->name ?? '-' }}</td>
-                            <td>{{ $i->session?->title_fr ?? '-' }}</td>
-                            <td>
-                                <span
-                                    style="
-                                                                                                                    padding:3px 10px;
-                                                                                                                    border-radius:20px;
-                                                                                                                    font-size:11px;
-                                                                                                                    font-weight:600;
-                                                                                                                    background:{{ $i->status == 'confirmed' ? 'rgba(0,229,160,0.1)' : ($i->status == 'cancelled' ? 'rgba(255,69,96,0.1)' : 'rgba(255,184,0,0.1)') }};
-                                                                                                                    color:{{ $i->status == 'confirmed' ? 'var(--success)' : ($i->status == 'cancelled' ? 'var(--danger)' : 'var(--warning)') }};
-                                                                                                                ">{{ $i->status }}</span>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.2s;
+        }
 
-    </div>
-    {{-- في admin dashboard --}}
-    <td>
-        {{ auth()->user()->last_activity_at
-        ? auth()->user()->last_activity_at->diffForHumans()
-        : 'Jamais' }}
-    </td>
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .stat-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .stat-link:hover {
+            text-decoration: underline;
+        }
+
+        .dashboard-section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .section-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .section-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .dashboard-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .dashboard-table th,
+        .dashboard-table td {
+            padding: 10px 0;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dashboard-table th {
+            color: var(--muted);
+            font-weight: 500;
+            font-size: 12px;
+        }
+
+        .dashboard-table td {
+            color: var(--text);
+            font-size: 13px;
+        }
+    </style>
 
 @endsection

@@ -15,8 +15,19 @@ use App\Http\Controllers\DashboardController;
 Route::get('/register', [RegisterController::class, 'show'])->name('register.show');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.store');
 Route::get('/login', [LoginController::class, 'show'])->name('login');
-Route::post('/login', [LoginController::class, 'login'])->name('login.store');
+Route::post('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+// ─── Password Reset Routes (AJOUTER CECI) ───────────
+Route::get('/forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/forgot-password', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/reset-password/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])->name('password.update');
+
+// ─── Email Verification Routes (AJOUTER CECI) ───────
+Route::get('/email/verify', [App\Http\Controllers\Auth\EmailVerificationController::class, 'notice'])->name('verification.notice');
+Route::get('/email/verify/{id}/{hash}', [App\Http\Controllers\Auth\EmailVerificationController::class, 'verify'])->name('verification.verify');
+Route::post('/email/verification-notification', [App\Http\Controllers\Auth\EmailVerificationController::class, 'send'])->name('verification.send');
 
 // ─── Home ────────────────────────────────────────────
 Route::get('/', function () {
@@ -30,7 +41,7 @@ Route::get('/', function () {
 // Route::get('/participant', fn() => "Participant Dashboard")->middleware(['auth', 'role:participant'])->name('participant.dashboard');
 
 // ─── Admin CRUD ──────────────────────────────────────
-Route::prefix('admin')->middleware(['auth', 'role:admin', 'last.activity'])->group(function () {
+Route::prefix('admin')->middleware(['auth', 'role:admin,super_admin', 'last.activity'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
     Route::resource('categories', CategoryController::class);
     Route::resource('formations', FormationController::class)->except(['show']);
@@ -69,3 +80,42 @@ Route::prefix('ajax')->group(function () {
     Route::get('{table}/search', [AjaxController::class, 'search'])->name('ajax.search');
 
 });
+
+// Route pour récupérer les sessions d'une formation (ex: pour le formateur lors de la création d'une session)
+Route::get('/ajax/formations/{id}/sessions', [AjaxController::class, 'getFormationSessions'])
+    ->name('ajax.formation.sessions')
+    ->middleware(['auth', 'role:admin']);
+
+use App\Http\Controllers\ContactController;
+
+// Public
+Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+
+// Admin
+Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/contacts', [ContactController::class, 'adminIndex'])->name('contacts.index');
+    Route::patch('/contacts/{contact}/status', [ContactController::class, 'updateStatus'])->name('contacts.status');
+    Route::delete('/contacts/{contact}', [ContactController::class, 'destroy'])->name('contacts.destroy');
+});
+
+
+use App\Http\Controllers\FormateurController;
+use App\Http\Controllers\ParticipantController;
+
+Route::prefix('formateur')->middleware(['auth', 'role:formateur'])->group(function () {
+    Route::get('/dashboard', [FormateurController::class, 'dashboard'])->name('formateur.dashboard');
+});
+
+Route::prefix('participant')->middleware(['auth', 'role:participant'])->group(function () {
+    Route::get('/dashboard', [ParticipantController::class, 'dashboard'])->name('participant.dashboard');
+});
+
+// Switch langue (simple)
+Route::get('/lang/{locale}', function ($locale) {
+    if (in_array($locale, ['fr', 'en'])) {
+        session(['locale' => $locale]);
+        app()->setLocale($locale);
+    }
+    return back();
+})->name('lang.switch');

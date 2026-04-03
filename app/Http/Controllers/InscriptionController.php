@@ -4,9 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Inscription;
 use App\Models\User;
+use App\Models\Formation;
 use App\Models\Session;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\InscriptionConfirmedMail;
+use App\Mail\InscriptionCancelledMail;
+use App\Enums\InscriptionStatus;
+use Illuminate\Validation\Rules\Enum;
 
 class InscriptionController extends Controller
 {
@@ -18,9 +23,11 @@ class InscriptionController extends Controller
 
     public function create()
     {
-        $users = User::where('role', 'participant')->get();
-        $sessions = Session::with('formation')->get();
-        return view('inscriptions.create', compact('users', 'sessions'));
+        // ✅ AJOUTE CES VARIABLES
+        $users = User::all();
+        $formations = Formation::with('sessions')->get();
+
+        return view('inscriptions.create', compact('users', 'formations'));
     }
 
     public function store(Request $request)
@@ -28,45 +35,43 @@ class InscriptionController extends Controller
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'session_id' => 'required|exists:sessions,id',
-
-            // اختاري واحد فقط 👇
-            'status' => 'required|in:pending,confirmed,cancelled',
-            // أو إذا بغيت Enum:
-            // 'status' => ['required', new Enum(InscriptionStatus::class)],
-
+            'status' => ['required', new Enum(InscriptionStatus::class)],
             'note' => 'nullable|string',
         ]);
 
-        Inscription::create([
+        $inscription = Inscription::create([
             'user_id' => $request->user_id,
             'session_id' => $request->session_id,
-            'reference' => 'INS-' . strtoupper(Str::random(8)),
             'status' => $request->status,
             'note' => $request->note,
-            'confirmed_at' => $request->status === 'confirmed' ? now() : null,
-            'cancelled_at' => $request->status === 'cancelled' ? now() : null,
         ]);
 
-        return redirect()->route('inscriptions.index')->with('success', 'Inscription ajoutée avec succès !');
+        // Envoyer email de confirmation si status = confirmed
+        if ($inscription->status->value === 'confirmed') {
+            Mail::to($inscription->user->email)->send(new InscriptionConfirmedMail($inscription));
+        }
+
+        return redirect()->route('inscriptions.index')
+            ->with('success', 'Inscription créée avec succès !');
     }
 
     public function edit(Inscription $inscription)
     {
-        $users = User::where('role', 'participant')->get();
+        // ✅ AJOUTE CES VARIABLES
+        $users = User::all();
         $sessions = Session::with('formation')->get();
+
         return view('inscriptions.edit', compact('inscription', 'users', 'sessions'));
     }
 
     public function update(Request $request, Inscription $inscription)
     {
+        $oldStatus = $inscription->status->value;
+
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'session_id' => 'required|exists:sessions,id',
-
-            // نفس الملاحظة هنا
-            'status' => 'required|in:pending,confirmed,cancelled',
-            // أو Enum
-
+            'status' => ['required', new Enum(InscriptionStatus::class)],
             'note' => 'nullable|string',
         ]);
 
@@ -75,16 +80,38 @@ class InscriptionController extends Controller
             'session_id' => $request->session_id,
             'status' => $request->status,
             'note' => $request->note,
-            'confirmed_at' => $request->status === 'confirmed' ? now() : null,
-            'cancelled_at' => $request->status === 'cancelled' ? now() : null,
         ]);
 
-        return redirect()->route('inscriptions.index')->with('success', 'Inscription modifiée avec succès !');
+        // Gérer les dates de confirmation/annulation
+        if ($request->status === 'confirmed' && $oldStatus !== 'confirmed') {
+            $inscription->confirmed_at = now();
+            $inscription->save();
+            Mail::to($inscription->user->email)->send(new InscriptionConfirmedMail($inscription));
+        } elseif ($request->status === 'cancelled' && $oldStatus !== 'cancelled') {
+            $inscription->cancelled_at = now();
+            $inscription->save();
+            Mail::to($inscription->user->email)->send(new InscriptionCancelledMail($inscription));
+        } elseif ($oldStatus === 'confirmed' && $request->status !== 'confirmed') {
+            $inscription->confirmed_at = null;
+            $inscription->save();
+        } elseif ($oldStatus === 'cancelled' && $request->status !== 'cancelled') {
+            $inscription->cancelled_at = null;
+            $inscription->save();
+        }
+
+        return redirect()->route('inscriptions.index')
+            ->with('success', 'Inscription mise à jour avec succès !');
     }
 
     public function destroy(Inscription $inscription)
     {
         $inscription->delete();
-        return redirect()->route('inscriptions.index')->with('success', 'Inscription supprimée !');
+
+        if (request()->ajax()) {
+            return response()->json(['success' => true]);
+        }
+
+        return redirect()->route('inscriptions.index')
+            ->with('success', 'Inscription supprimée avec succès !');
     }
 }

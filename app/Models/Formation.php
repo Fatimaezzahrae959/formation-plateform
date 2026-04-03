@@ -4,14 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Traits\HasSlug;
-use App\Traits\HasSEO;
-use App\Enums\FormationStatus;
+use App\Enums\FormationStatus;  // ← Assurez-vous que cette ligne existe en haut
 
 
 class Formation extends Model
 {
-    use HasFactory, HasSlug, HasSEO;
+    use HasFactory;
 
     protected $fillable = [
         'category_id',
@@ -30,7 +28,6 @@ class Formation extends Model
         'duration',
         'level',
         'status',
-        'publication_date',
         'published_at',
         'seo_title_fr',
         'seo_title_en',
@@ -38,13 +35,27 @@ class Formation extends Model
         'meta_desc_en',
     ];
 
-    public function category()
-    {
-        return $this->belongsTo(\App\Models\Category::class);
-    }
-
-
     protected $casts = [
+        'published_at' => 'datetime',
+        'price' => 'float',
         'status' => FormationStatus::class,
     ];
+
+    // Relation avec Category
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    // Relation avec Session (UNE FORMATION A PLUSIEURS SESSIONS)
+    public function sessions()
+    {
+        return $this->hasMany(Session::class);
+    }
+
+    // Relation avec Inscription (via sessions)
+    public function inscriptions()
+    {
+        return $this->hasManyThrough(Inscription::class, Session::class);
+    }
 }

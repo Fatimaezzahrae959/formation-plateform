@@ -14,11 +14,11 @@ class DashboardController extends Controller
     public function admin()
     {
         $stats = [
-            'users' => User::count(),
             'formations' => Formation::count(),
             'categories' => Category::count(),
             'sessions' => Session::count(),
             'inscriptions' => Inscription::count(),
+            'users' => User::count(),
             'blogs' => Blog::count(),
         ];
 

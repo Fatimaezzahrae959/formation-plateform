@@ -569,6 +569,9 @@
         <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
             <i class="fas fa-chart-pie"></i> Dashboard
         </a>
+        <a href="{{ route('contacts.index') }}" class="{{ request()->routeIs('contacts.*') ? 'active' : '' }}">
+            <i class="fas fa-envelope"></i> Contacts
+        </a>
 
         <div class="sidebar-section">Gestion</div>
 
@@ -675,6 +678,7 @@
                 btn.addEventListener('click', function () {
                     const id = this.dataset.id;
                     const table = this.dataset.table;
+                    const el = this;
 
                     fetch(`/ajax/${table}/${id}/toggle-status`, {
                         method: 'POST',
@@ -686,56 +690,357 @@
                         .then(res => res.json())
                         .then(data => {
                             if (data.success) {
-                                this.innerText = data.new_status_label;
-                                alert('Status mis à jour !');
+                                // تحديث النص
+                                el.innerText = data.new_status_label;
+
+                                // تحديث اللون
+                                el.className = el.className
+                                    .replace(/badge-(success|danger|warning)/g, '')
+                                    .trim();
+                                el.classList.add('badge-' + data.new_status_color);
+
+                                // flash message بدون alert
+                                showFlash('Status mis à jour : ' + data.new_status_label);
                             } else {
-                                alert('Erreur lors du changement de status');
+                                showFlash('Erreur lors du changement de status', 'error');
                             }
                         });
                 });
             });
 
+            // Flash message function
+            function showFlash(message, type = 'success') {
+                const existing = document.getElementById('ajax-flash');
+                if (existing) existing.remove();
+
+                const div = document.createElement('div');
+                div.id = 'ajax-flash';
+                div.className = `flash ${type}`;
+                div.style.cssText = 'position:fixed; top:80px; right:20px; z-index:9999; min-width:250px;';
+                div.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        ${message}
+    `;
+                document.body.appendChild(div);
+                setTimeout(() => div.remove(), 3000);
+            }
+
+            // =============================
+            // 3️⃣ Live Search
+            // =============================
             // =============================
             // 3️⃣ Live Search
             // =============================
             document.querySelectorAll('.live-search').forEach(input => {
-                input.addEventListener('keyup', function () {
-                    const table = this.dataset.table;
-                    const query = this.value;
+                let timeout = null;
 
-                    fetch(`/ajax/${table}/search?q=${query}`, {
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'Accept': 'application/json'
-                        }
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            const tbody = document.querySelector(`#${table}-table tbody`);
-                            tbody.innerHTML = '';
-                            data.forEach(item => {
-                                tbody.innerHTML += `
-                        <tr>
-                            <td>${item.id}</td>
-                            <td>${item.reference}</td>
-                            <td>${item.user_name}</td>
-                            <td>${item.session_title}</td>
-                            <td>${item.status_label}</td>
-                            <td>${item.note ?? '-'}</td>
-                            <td>${item.confirmed_at ?? '-'}</td>
-                            <td>${item.cancelled_at ?? '-'}</td>
-                            <td class="actions">
-                                <a href="/${table}/${item.id}/edit" class="btn edit">Edit</a>
-                                <button class="btn delete" data-id="${item.id}" data-table="${table}">Delete</button>
-                            </td>
-                        </tr>
-                    `;
+                input.addEventListener('keyup', function () {
+                    clearTimeout(timeout);
+                    const table = this.dataset.table;
+                    const query = this.value.trim();
+                    const tbody = document.querySelector(`#${table}-table tbody`);
+                    if (!tbody) return;
+
+                    // إلا كانت فراغة — reload الصفحة
+                    if (query === '') {
+                        location.reload();
+                        return;
+                    }
+
+                    // debounce 300ms
+                    timeout = setTimeout(() => {
+                        fetch(`/ajax/${table}/search?q=${encodeURIComponent(query)}`, {
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
+                            }
+                        })
+                            .then(res => res.json())
+                            .then(data => {
+                                tbody.innerHTML = '';
+
+                                if (data.length === 0) {
+                                    const cols = tbody.closest('table').querySelectorAll('th').length;
+                                    tbody.innerHTML = `<tr><td colspan="${cols}" style="text-align:center;padding:30px;color:var(--muted);">Aucun résultat</td></tr>`;
+                                    return;
+                                }
+
+                                data.forEach(item => {
+                                    tbody.innerHTML += buildRow(table, item);
+                                });
+
+                                // ربط events على الأزرار الجديدة
+                                bindAjaxEvents(tbody);
                             });
-                        });
+                    }, 300);
                 });
             });
 
-        });
+            // ── Build Row حسب كل table ────────────────────────
+            function buildRow(table, item) {
+                const statusBtn = `
+        <button class="status-toggle badge badge-${item.status_color}"
+                data-id="${item.id}" data-table="${table}"
+                style="cursor:pointer; border:none;">
+            ${item.status_label}
+        </button>`;
+
+                const editBtn = `<a href="${item.edit_url}" class="btn edit"><i class="fas fa-edit"></i></a>`;
+                const deleteBtn = `<button class="btn delete" data-id="${item.id}" data-table="${table}"><i class="fas fa-trash"></i></button>`;
+                const actions = `<td class="actions">${editBtn}${deleteBtn}</td>`;
+
+                if (table === 'formations') {
+                    return `<tr id="row-${item.id}">
+            <td>${item.id}</td>
+            <td>-</td>
+            <td>${item.category}</td>
+            <td>${item.title_fr}</td>
+            <td>${item.title_en}</td>
+            <td>${item.duration}</td>
+            <td>${item.price}</td>
+            <td>${item.level}</td>
+            <td>${statusBtn}</td>
+            ${actions}
+        </tr>`;
+                }
+
+                if (table === 'sessions') {
+                    return `<tr id="row-${item.id}">
+            <td>${item.id}</td>
+            <td>${item.title_fr}</td>
+            <td>${item.title_en}</td>
+            <td>${item.formation}</td>
+            <td>${item.formateur}</td>
+            <td>${item.start_date}</td>
+            <td>${item.end_date}</td>
+            <td>${item.capacity}</td>
+            <td>${item.mode}</td>
+            <td>${item.city}</td>
+            <td>-</td>
+            <td>${statusBtn}</td>
+            ${actions}
+        </tr>`;
+                }
+
+                if (table === 'inscriptions') {
+                    return `<tr id="row-${item.id}">
+            <td>${item.id}</td>
+            <td>${item.reference}</td>
+            <td>${item.participant}</td>
+            <td>${item.session}</td>
+            <td>${statusBtn}</td>
+            <td>${item.note}</td>
+            <td>${item.confirmed_at}</td>
+            <td>${item.cancelled_at}</td>
+            ${actions}
+        </tr>`;
+                }
+                if (table === 'blogs') {
+                    const statusBtn = `
+        <button class="status-toggle badge badge-${item.status_color}"
+                data-id="${item.id}" data-table="${table}"
+                style="cursor:pointer; border:none;">
+            ${item.status_label}
+        </button>`;
+                    const editBtn = `<a href="${item.edit_url}" class="btn edit"><i class="fas fa-edit"></i></a>`;
+                    const deleteBtn = `<button class="btn delete" data-id="${item.id}" data-table="${table}"><i class="fas fa-trash"></i></button>`;
+
+                    return `<tr id="row-${item.id}">
+        <td>${item.id}</td>
+        <td>-</td>
+        <td>${item.title_fr}</td>
+        <td>${item.title_en}</td>
+        <td>${item.category}</td>
+        <td>${item.auteur}</td>
+        <td>${statusBtn}</td>
+        <td>${item.published_at}</td>
+        <td class="actions">${editBtn}${deleteBtn}</td>
+    </tr>`;
+                }
+
+                if (table === 'users') {
+                    const activeBtn = `
+        <button class="status-toggle badge badge-${item.status_color}"
+                data-id="${item.id}" data-table="users"
+                style="cursor:pointer; border:none;">
+            ${item.is_active}
+        </button>`;
+                    const editBtn = `<a href="${item.edit_url}" class="btn edit"><i class="fas fa-edit"></i></a>`;
+                    const deleteBtn = `<button class="btn delete" data-id="${item.id}" data-table="users"><i class="fas fa-trash"></i></button>`;
+
+                    return `<tr id="row-${item.id}">
+        <td>${item.id}</td>
+        <td>${item.name}</td>
+        <td>${item.email}</td>
+        <td>${item.phone}</td>
+        <td>${item.role}</td>
+        <td>${item.language}</td>
+        <td>${activeBtn}</td>
+        <td class="actions">${editBtn}${deleteBtn}</td>
+    </tr>`;
+                }
+
+                if (table === 'categories') {
+                    const editBtn = `<a href="${item.edit_url}" class="btn edit"><i class="fas fa-edit"></i></a>`;
+                    const deleteBtn = `<button class="btn delete" data-id="${item.id}" data-table="categories"><i class="fas fa-trash"></i></button>`;
+
+                    return `<tr id="row-${item.id}">
+        <td>${item.id}</td>
+        <td>${item.name_fr}</td>
+        <td>${item.name_en}</td>
+        <td>${item.slug_fr}</td>
+        <td>${item.slug_en}</td>
+        <td class="actions">${editBtn}${deleteBtn}</td>
+    </tr>`;
+                }
+
+                return '';
+            }
+
+            // ── Bind Events على rows جديدة ────────────────────
+            function bindAjaxEvents(container) {
+                // Delete
+                container.querySelectorAll('.btn.delete').forEach(button => {
+                    button.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const id = this.dataset.id;
+                        const table = this.dataset.table;
+
+                        if (confirm('Supprimer cet élément ?')) {
+                            fetch(`/ajax/${table}/${id}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                    'Accept': 'application/json'
+                                }
+                            })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        document.getElementById(`row-${id}`)?.remove();
+                                        showFlash('Supprimé avec succès!');
+                                    }
+                                });
+                        }
+                    });
+                });
+
+                // Toggle Status
+                container.querySelectorAll('.status-toggle').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const id = this.dataset.id;
+                        const table = this.dataset.table;
+                        const el = this;
+
+                        fetch(`/ajax/${table}/${id}/toggle-status`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json'
+                            }
+                        })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    el.innerText = data.new_status_label;
+                                    el.className = el.className.replace(/badge-(success|danger|warning)/g, '').trim();
+                                    el.classList.add('badge-' + data.new_status_color);
+                                    showFlash('Status mis à jour : ' + data.new_status_label);
+                                }
+                            });
+                    });
+                });
+            }
+            const statusBtn = `
+        <button class="status-toggle badge badge-${item.status_color}"
+                data-id="${item.id}" data-table="${table}"
+                style="cursor:pointer; border:none;">
+            ${item.status_label}
+        </button>`;
+
+            const actions = `
+        <td class="actions">
+            <a href="/admin/${table}/${item.id}/edit" class="btn edit"><i class="fas fa-edit"></i></a>
+            <button class="btn delete" data-id="${item.id}" data-table="${table}"><i class="fas fa-trash"></i></button>
+        </td>`;
+
+            if (table === 'formations') {
+                return `<tr id="row-${item.id}">
+            <td>${item.id}</td>
+            <td>-</td>
+            <td>-</td>
+            <td>${item.session_title}</td>
+            <td>${item.session_title}</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>${statusBtn}</td>
+            ${actions}
+        </tr>`;
+            }
+
+            if (table === 'sessions') {
+                return `<tr id="row-${item.id}">
+            <td>${item.id}</td>
+            <td>${item.session_title}</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>${statusBtn}</td>
+            ${actions}
+        </tr>`;
+            }
+
+            if (table === 'inscriptions') {
+                return `<tr id="row-${item.id}">
+            <td>${item.id}</td>
+            <td>${item.reference}</td>
+            <td>${item.user_name}</td>
+            <td>-</td>
+            <td>${statusBtn}</td>
+            <td>${item.note ?? '-'}</td>
+            <td>${item.confirmed_at ?? '-'}</td>
+            <td>${item.cancelled_at ?? '-'}</td>
+            ${actions}
+        </tr>`;
+            }
+
+            if (table === 'blogs') {
+                return `<tr id="row-${item.id}">
+            <td>${item.id}</td>
+            <td>-</td>
+            <td>${item.session_title}</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>${statusBtn}</td>
+            <td>-</td>
+            ${actions}
+        </tr>`;
+            }
+
+            if (table === 'users') {
+                return `<tr id="row-${item.id}">
+            <td>${item.id}</td>
+            <td>${item.user_name}</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>${statusBtn}</td>
+            ${actions}
+        </tr>`;
+            }
+
+            return '';
+        }
+        );
     </script>
 
 </body>
