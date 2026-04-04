@@ -14,8 +14,8 @@ use App\Http\Controllers\DashboardController;
 // ─── Auth ───────────────────────────────────────────
 Route::get('/register', [RegisterController::class, 'show'])->name('register.show');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.store');
-Route::get('/login', [LoginController::class, 'show'])->name('login');
-Route::post('/login', [LoginController::class, 'login'])->name('login');
+Route::get('/login', [LoginController::class, 'show'])->name('login.show');
+Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // ─── Password Reset Routes (AJOUTER CECI) ───────────
@@ -111,7 +111,6 @@ Route::prefix('participant')->middleware(['auth', 'role:participant'])->group(fu
     Route::get('/dashboard', [ParticipantController::class, 'dashboard'])->name('participant.dashboard');
 });
 
-// Switch langue (simple)
 Route::get('/lang/{locale}', function ($locale) {
     if (in_array($locale, ['fr', 'en'])) {
         session(['locale' => $locale]);

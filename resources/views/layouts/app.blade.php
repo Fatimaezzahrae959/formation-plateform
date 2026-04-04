@@ -555,7 +555,7 @@
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
                     <button type="submit" class="btn-logout">
-                        <i class="fas fa-sign-out-alt"></i> Logout
+                        <i class="fas fa-sign-out-alt"></i> {{ __t('Logout') }}
                     </button>
                 </form>
             @endauth
@@ -564,43 +564,43 @@
 
     {{-- SIDEBAR --}}
     <aside class="sidebar">
-        <div class="sidebar-section">Menu Principal</div>
+        <div class="sidebar-section">{{ __t('Main Menu') }}</div>
 
         <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-            <i class="fas fa-chart-pie"></i> Dashboard
+            <i class="fas fa-chart-pie"></i> {{ __t('Dashboard') }}
         </a>
         <a href="{{ route('contacts.index') }}" class="{{ request()->routeIs('contacts.*') ? 'active' : '' }}">
-            <i class="fas fa-envelope"></i> Contacts
+            <i class="fas fa-envelope"></i> {{ __t('Contacts') }}
         </a>
 
-        <div class="sidebar-section">Gestion</div>
+        <div class="sidebar-section">{{ __t('Management') }}</div>
 
         <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.*') ? 'active' : '' }}">
-            <i class="fas fa-tags"></i> Catégories
+            <i class="fas fa-tags"></i> {{ __t('Categories') }}
         </a>
 
         <a href="{{ route('formations.index') }}" class="{{ request()->routeIs('formations.*') ? 'active' : '' }}">
-            <i class="fas fa-book-open"></i> Formations
+            <i class="fas fa-book-open"></i> {{ __t('Formations') }}
         </a>
 
         <a href="{{ route('sessions.index') }}" class="{{ request()->routeIs('sessions.*') ? 'active' : '' }}">
-            <i class="fas fa-calendar-alt"></i> Sessions
+            <i class="fas fa-calendar-alt"></i> {{ __t('Sessions') }}
         </a>
 
         <a href="{{ route('inscriptions.index') }}" class="{{ request()->routeIs('inscriptions.*') ? 'active' : '' }}">
-            <i class="fas fa-user-check"></i> Inscriptions
+            <i class="fas fa-user-check"></i> {{ __t('Registrations') }}
         </a>
 
-        <div class="sidebar-section">Contenu</div>
+        <div class="sidebar-section">{{ __t('Content') }}</div>
 
         <a href="{{ route('blogs.index') }}" class="{{ request()->routeIs('blogs.*') ? 'active' : '' }}">
-            <i class="fas fa-rss"></i> Blog
+            <i class="fas fa-rss"></i> {{ __t('Blog') }}
         </a>
 
-        <div class="sidebar-section">Administration</div>
+        <div class="sidebar-section">{{ __t('Administration') }}</div>
 
         <a href="{{ route('users.index') }}" class="{{ request()->routeIs('users.*') ? 'active' : '' }}">
-            <i class="fas fa-users"></i> Utilisateurs
+            <i class="fas fa-users"></i> {{ __t('Users') }}
         </a>
     </aside>
 

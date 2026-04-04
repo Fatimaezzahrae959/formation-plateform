@@ -1,10 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Liste des Inscriptions')
+@section('title', __t('Registrations'))
 
 @section('content')
 
-    <h2 class="title">Liste des Inscriptions</h2>
+    <h2 class="title">{{ __t('Registrations') }}</h2>
 
     @if(session('success'))
         <div class="flash success">
@@ -13,26 +13,27 @@
     @endif
 
     <a href="{{ route('inscriptions.create') }}" class="btn-add">
-        <i class="fas fa-plus"></i> Ajouter Inscription
+        <i class="fas fa-plus"></i> {{ __t('Add Registration') }}
     </a>
 
-    <input type="text" class="live-search" data-table="inscriptions" placeholder="🔍 Rechercher inscription..." style="margin:12px 0 16px; padding:9px 14px; width:300px; border-radius:8px;
-                      border:1px solid var(--border); background:var(--bg);
-                      color:var(--text); font-size:14px; outline:none; display:block;">
+    <input type="text" class="live-search" data-table="inscriptions" placeholder="{{ __t('Search registration...') }}"
+        style="margin:12px 0 16px; padding:9px 14px; width:300px; border-radius:8px;
+                              border:1px solid var(--border); background:var(--bg);
+                              color:var(--text); font-size:14px; outline:none; display:block;">
 
     <div class="table-wrap">
         <table id="inscriptions-table">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Référence</th>
-                    <th>Participant</th>
-                    <th>Session</th>
-                    <th>Status</th>
-                    <th>Note</th>
-                    <th>Confirmé le</th>
-                    <th>Annulé le</th>
-                    <th style="width:150px;">Actions</th>
+                    <th>{{ __t('Reference') }}</th>
+                    <th>{{ __t('Participant') }}</th>
+                    <th>{{ __t('Session') }}</th>
+                    <th>{{ __t('Status') }}</th>
+                    <th>{{ __t('Note') }}</th>
+                    <th>{{ __t('Confirmed at') }}</th>
+                    <th>{{ __t('Cancelled at') }}</th>
+                    <th style="width:150px;">{{ __t('Actions') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -53,17 +54,17 @@
                         <td>{{ $inscription->cancelled_at ?? '-' }}</td>
                         <td class="actions">
                             <a href="{{ route('inscriptions.edit', $inscription->id) }}" class="btn edit">
-                                <i class="fas fa-edit"></i>
+                                <i class="fas fa-edit"></i> {{ __t('Edit') }}
                             </a>
                             <button class="btn delete" data-id="{{ $inscription->id }}" data-table="inscriptions">
-                                <i class="fas fa-trash"></i>
+                                <i class="fas fa-trash"></i> {{ __t('Delete') }}
                             </button>
                         </td>
                     </tr>
                 @empty
                     <tr id="empty-row">
                         <td colspan="9" style="text-align:center; padding:30px; color:var(--muted);">
-                            Aucune inscription trouvée
+                            {{ __t('No registrations found') }}
                         </td>
                     </tr>
                 @endforelse

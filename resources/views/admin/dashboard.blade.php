@@ -1,70 +1,68 @@
 @extends('layouts.app')
 
-@section('title', __('Dashboard'))
+@section('title', __t('Dashboard'))
 
 @section('content')
 
     <div class="dashboard-container">
-        <h2 class="title">{{ __('Dashboard') }}</h2>
+        <h2 class="title">{{ __t('Dashboard') }}</h2>
 
-        <!-- Statistics Cards -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-book-open"></i></div>
                 <div class="stat-number">{{ $stats['formations'] }}</div>
-                <div class="stat-label">{{ __('Formations') }}</div>
-                <a href="{{ route('formations.index') }}" class="stat-link">{{ __('View all') }} →</a>
+                <div class="stat-label">{{ __t('Formations') }}</div>
+                <a href="{{ route('formations.index') }}" class="stat-link">{{ __t('View all') }} →</a>
             </div>
 
             <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-tags"></i></div>
                 <div class="stat-number">{{ $stats['categories'] }}</div>
-                <div class="stat-label">{{ __('Categories') }}</div>
-                <a href="{{ route('categories.index') }}" class="stat-link">{{ __('View all') }} →</a>
+                <div class="stat-label">{{ __t('Categories') }}</div>
+                <a href="{{ route('categories.index') }}" class="stat-link">{{ __t('View all') }} →</a>
             </div>
 
             <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
                 <div class="stat-number">{{ $stats['sessions'] }}</div>
-                <div class="stat-label">{{ __('Sessions') }}</div>
-                <a href="{{ route('sessions.index') }}" class="stat-link">{{ __('View all') }} →</a>
+                <div class="stat-label">{{ __t('Sessions') }}</div>
+                <a href="{{ route('sessions.index') }}" class="stat-link">{{ __t('View all') }} →</a>
             </div>
 
             <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-user-check"></i></div>
                 <div class="stat-number">{{ $stats['inscriptions'] }}</div>
-                <div class="stat-label">{{ __('Registrations') }}</div>
-                <a href="{{ route('inscriptions.index') }}" class="stat-link">{{ __('View all') }} →</a>
+                <div class="stat-label">{{ __t('Registrations') }}</div>
+                <a href="{{ route('inscriptions.index') }}" class="stat-link">{{ __t('View all') }} →</a>
             </div>
 
             <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-users"></i></div>
                 <div class="stat-number">{{ $stats['users'] }}</div>
-                <div class="stat-label">{{ __('Users') }}</div>
-                <a href="{{ route('users.index') }}" class="stat-link">{{ __('View all') }} →</a>
+                <div class="stat-label">{{ __t('Users') }}</div>
+                <a href="{{ route('users.index') }}" class="stat-link">{{ __t('View all') }} →</a>
             </div>
 
             <div class="stat-card">
                 <div class="stat-icon"><i class="fas fa-blog"></i></div>
                 <div class="stat-number">{{ $stats['blogs'] }}</div>
-                <div class="stat-label">{{ __('Blog') }}</div>
-                <a href="{{ route('blogs.index') }}" class="stat-link">{{ __('View all') }} →</a>
+                <div class="stat-label">{{ __t('Blog') }}</div>
+                <a href="{{ route('blogs.index') }}" class="stat-link">{{ __t('View all') }} →</a>
             </div>
         </div>
 
-        <!-- Latest Formations -->
         <div class="dashboard-section">
             <div class="section-header">
-                <h3>{{ __('Latest Trainings') }}</h3>
-                <a href="{{ route('formations.index') }}" class="section-link">{{ __('View all') }} →</a>
+                <h3>{{ __t('Latest Trainings') }}</h3>
+                <a href="{{ route('formations.index') }}" class="section-link">{{ __t('View all') }} →</a>
             </div>
             <div class="table-wrap">
                 <table class="dashboard-table">
                     <thead>
                         <tr>
-                            <th>{{ __('Title') }}</th>
-                            <th>{{ __('Category') }}</th>
-                            <th>{{ __('Status') }}</th>
+                            <th>{{ __t('Title') }}</th>
+                            <th>{{ __t('Category') }}</th>
+                            <th>{{ __t('Status') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -82,19 +80,18 @@
             </div>
         </div>
 
-        <!-- Latest Inscriptions -->
         <div class="dashboard-section">
             <div class="section-header">
-                <h3>{{ __('Latest Registrations') }}</h3>
-                <a href="{{ route('inscriptions.index') }}" class="section-link">{{ __('View all') }} →</a>
+                <h3>{{ __t('Latest Registrations') }}</h3>
+                <a href="{{ route('inscriptions.index') }}" class="section-link">{{ __t('View all') }} →</a>
             </div>
             <div class="table-wrap">
                 <table class="dashboard-table">
                     <thead>
                         <tr>
-                            <th>{{ __('Participant') }}</th>
-                            <th>{{ __('Session') }}</th>
-                            <th>{{ __('Status') }}</th>
+                            <th>{{ __t('Participant') }}</th>
+                            <th>{{ __t('Session') }}</th>
+                            <th>{{ __t('Status') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -131,12 +128,6 @@
             border-radius: 12px;
             padding: 20px;
             text-align: center;
-            transition: all 0.2s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--accent);
         }
 
         .stat-icon {
@@ -161,10 +152,6 @@
             color: var(--accent);
             text-decoration: none;
             font-size: 12px;
-        }
-
-        .stat-link:hover {
-            text-decoration: underline;
         }
 
         .dashboard-section {
